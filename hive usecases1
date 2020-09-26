@@ -1,0 +1,27 @@
+usecase1 :
+
+1. Create a usecase dir
+mkdir /home/hduser/hiveusecase
+Download from the link "inceptez.in -> more -> HIVE REALTIME USECASES FOR INTERVIEW PREPARATION -> Click here to download the data files for the usecases given below" the custpayments_ORIG.sql and payments.txt into /home/hduser/hiveusecase
+2. Ensure Hadoop, MYSQL, Hive remote metastore is running.
+Usecase 1:
+**********
+1. Login to Mysql and execute the sql file to load the custpayments table:
+source /home/hduser/hiveusecase/custpayments_ORIG.sql
+2. Write sqoop command to import data from customerpayments table with 2 mappers, with enclosed by " (As we have ',' in the data itself we are importing in sqoop using --enclosed-by option into the location /user/hduser/custpayments).
+3. Create a hive external table and load the sqoop imported data to the hive table called custpayments. As we have ',' in the data itself we are using quotedchar option below with the csv serde option as given below as example, create the table with all columns.
+create external table custmaster (customerNumber int,customername string,contactlastname string,contactfirstname string)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.OpenCSVSerde'
+WITH SERDEPROPERTIES (
+"separatorChar" = ",",
+"quoteChar" = "\"")
+LOCATION '/user/hduser/custpayments/';
+4. Copy the payments.txt into hdfs location /user/hduser/paymentsdata/ and Create an external table namely payments with customernumber, checknumber, paymentdate, amount columns to point the imported payments data.
+solution here
+5. Create an external table called cust_payments in avro format and load data by doing inner join of custmaster and payments tables, using insert select customernumber, contactfirstname,contactlastname,phone, creditlimit from custmaster and paymentdate, amount columns from payments table
+solution here
+6. Create a view called custpayments_vw to only display customernumber,creditlimit,paymentdate and amount selected from cust_payments.
+solution here
+7. Extract only customernumber,creditlimit,paymentdate and amount columns either using the above view/cust_payments table into hdfs location /user/hduser/custpaymentsexport with '|' delimiter.
+solution here
+8. Export the data from the /user/hduser/custpaymentsexport location to mysql table called cust_payments using sqoop export with staging table option using records per statement 100 and mappers 3.
